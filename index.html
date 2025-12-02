@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Isha Automation — Login</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="login-page">
+    <div class="login-container">
+	<div class="logo">
+        <img src="images/isha-logo.jpeg" alt="Isha Automation logo" onerror="this.style.display='none'"/>
+      </div>
+      <h1 class="logo" >ISHA Automation</h1>
+      <form id="loginForm" class="login-form" autocomplete="off" novalidate>
+        <label>Username
+          <input id="username" type="text" required placeholder="username" />
+        </label>
+        <label>Password
+          <input id="password" type="password" required placeholder="password" />
+        </label>
+        <button class="btn primary" type="submit">Login</button>
+        <p id="error" class="error" aria-live="polite"></p>
+      </form>
+
+      <div class="login-info">
+        <p><strong>Demo credentials:</strong> <code>admin</code> / <code>admin123</code></p>
+        <p class="muted">This is a demosite for Isha Automation.</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const DEMO_USER = 'admin';
+    const DEMO_PASS = 'admin123';
+    const form = document.getElementById('loginForm');
+    const err = document.getElementById('error');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      err.textContent = '';
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value.trim();
+      if (!u || !p) { err.textContent = 'Enter username and password.'; return; }
+      if (u === DEMO_USER && p === DEMO_PASS) {
+        sessionStorage.setItem('isLoggedIn','true');
+        sessionStorage.setItem('user', u);
+        window.location.href = 'inventory.html';
+      } else {
+        err.textContent = 'Invalid username or password.';
+      }
+    });
+
+    // redirect if already logged in
+    if (sessionStorage.getItem('isLoggedIn') === 'true') {
+      window.location.href = 'inventory.html';
+    }
+  </script>
+</body>
+</html>

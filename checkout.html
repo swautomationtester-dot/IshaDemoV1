@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Checkout — Isha Automation</title>
+<link rel="stylesheet" href="styles.css" /></head>
+
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent:#0ea5a2;
+      --accent-700:#0b8c86;
+      --danger:#ef4444;
+      --glass: rgba(255,255,255,0.7);
+      --shadow: 0 6px 18px rgba(15,23,42,0.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
+         background:linear-gradient(180deg,#eef2f6 0%, var(--bg) 100%);
+         color:#0f172a;-webkit-font-smoothing:antialiased}
+    .container{max-width:1100px;margin:36px auto;padding:20px}
+
+    /* header */
+    .site-header{background:transparent;padding:12px 0}
+    .header-inner{display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo-min img{height:48px;border-radius:8px;display:block}
+    .brand-text{font-weight:700;font-size:1.05rem;color:var(--accent)}
+    .header-actions{display:flex;gap:8px}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;border:1px solid transparent;background:var(--card);cursor:pointer;font-weight:600}
+    .btn.ghost{background:transparent;border-color:transparent;color:var(--accent)}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-700));color:white;border:none}
+
+    /* layout */
+    .checkout-grid{display:grid;grid-template-columns:1fr 360px;gap:22px;margin-top:22px}
+    @media (max-width:880px){ .checkout-grid{grid-template-columns:1fr;}.header-actions{gap:6px} }
+
+    .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:var(--shadow)}
+    h2{margin:0;font-size:1.4rem}
+    h3{margin-top:0}
+
+    /* form */
+    .checkout-form{display:inline;gap:12px}
+    .checkout-form label{display:block;font-weight:600;color:#0f172a}
+    .checkout-form input, .checkout-form textarea, .checkout-form select{
+      width:100%;padding:10px 12px;margin-top:6px;border-radius:8px;border:1px solid #e6e9ee;background:transparent}
+    .field-row{display:flex;gap:10px;flex-wrap:wrap}
+    .field-row > label{flex:1;min-width:0}
+    .muted{color:var(--muted);font-size:.95rem}
+
+    /* order summary */
+    .order-summary{padding:18px;border-radius:12px;box-shadow:0 12px 32px rgba(15,23,42,0.06);background:var(--card);overflow:hidden}
+    .order-summary .summary-list{max-height:calc(100vh - 240px);overflow-y:auto;padding-right:8px}
+    .order-summary .summary-row{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px dashed rgba(10,46,57,0.03)}
+    .order-summary .thumb{width:72px;height:72px;min-width:72px;border-radius:8px;overflow:hidden;background:linear-gradient(180deg,#fff,#fbfdff);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+    .order-summary .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .order-summary .item-info{flex:1 1 auto;min-width:0}
+    .order-summary .item-price{white-space:nowrap;font-weight:700}
+    .order-summary .totals{margin-top:12px;padding-top:6px;border-top:1px solid #f2f4f7}
+
+    /* small helpers */
+    .center{display:flex;align-items:center;justify-content:center}
+    .logo-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 8px;border-radius:999px;background:var(--glass);backdrop-filter:blur(4px)}
+
+    /* animation */
+    .fade-in{animation:fadeIn .6s ease both}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .product-thumb{width:84px;height:84px;border-radius:10px;object-fit:cover;transition:transform .28s ease}
+    .product-thumb:hover{transform:scale(1.06)}
+
+    /* image safety fallback if something else appends full-size images */
+    .order-summary .thumb img, .summary-list img{max-width:100%;height:auto;display:block;object-fit:cover}
+
+    /* error message */
+    .error{color:var(--danger);font-weight:700}
+
+    footer.site-footer{padding:14px 0;text-align:center;color:var(--muted);font-size:.95rem;margin-top:28px}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="logo-min"><img src="images/isha-logo.jpeg" alt="logo" style="height:48px;border-radius:6px"></div>
+        <div class="brand-text">Isha Automation</div>
+      </div>
+      <div class="header-actions">
+        <a href="cart.html" class="btn ghost" aria-label="Back to cart">← Back to Cart</a>
+        <button id="logoutBtn" class="btn ghost" aria-label="Logout">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="card">
+      <h2>Checkout</h2>
+      <p class="muted">Secure checkout. Enter your billing details to complete the order.</p>
+
+      <div class="checkout-grid">
+        <form id="checkoutForm" class="checkout-form" novalidate>
+          <label for="fullName">Full name
+            <input id="fullName" name="fullName" required placeholder="John Doe" autocomplete="name" />
+          </label>
+
+          <label for="address">Address
+            <textarea id="address" name="address" rows="2" required placeholder="123, Some Street, Chennai" ></textarea>
+          </label>
+
+          <div class="field-row">
+            <label for="cardNumber">Card Number
+              <input id="cardNumber" name="cardNumber" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="1234 5678 1234 5678" required />
+            </label>
+            <label for="expiry">Expiry (MM/YY)
+              <input id="expiry" name="expiry" inputmode="numeric" maxlength="5" placeholder="12/24" required />
+            </label>
+            <label for="cvc">CVC
+              <input id="cvc" name="cvc" inputmode="numeric" maxlength="3" placeholder="123" required />
+            </label>
+          </div>
+
+          <div style="margin-top:8px;display:flex;gap:10px;align-items:center;">
+            <button class="btn primary" type="submit" aria-live="polite">Pay Now</button>
+            <div id="checkoutMsg" class="muted" aria-hidden="false"></div>
+          </div>
+          <div id="errorMsg" class="error" role="alert" aria-live="assertive" style="display:none"></div>
+        </form>
+
+        <aside class="order-summary card fade-in" aria-label="Order summary">
+          <h3>Order summary</h3>
+          <div id="summaryList" role="list" aria-live="polite"></div>
+
+          <div class="totals">
+            <div style="display:flex;justify-content:space-between"><div>Subtotal</div><div id="sumSubtotal">₹0.00</div></div>
+            <div style="display:flex;justify-content:space-between"><div>Tax (5%)</div><div id="sumTax">₹0.00</div></div>
+            <div style="display:flex;justify-content:space-between;font-weight:700;margin-top:6px"><div>Total</div><div id="sumTotal">₹0.00</div></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">© Isha Automation</footer>
+
+  <script>
+    // Inline SVG placeholder data URL (safe fallback)
+    const SVG_PLACEHOLDER = (function(){
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 24 24' fill='none' stroke='%23CBD5E1' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='2' width='20' height='20' rx='4' fill='%23F8FAFC' stroke='none'></rect><path d='M6 6h15l-1.5 9h-11z' stroke='%239CA3AF' fill='none'></path><circle cx='10' cy='19' r='1.3' fill='%239CA3AF' stroke='none'></circle><circle cx='17' cy='19' r='1.3' fill='%239CA3AF' stroke='none'></circle></svg>`;
+      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    })();
+
+    // Redirect if not logged in
+    if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+      window.location.href = 'index.html';
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{
+      sessionStorage.clear();
+      window.location.href = 'index.html';
+    });
+
+    // localStorage helpers (cart & orders)
+    function loadCart(){ try{ const raw = localStorage.getItem('sp_cart'); return raw?JSON.parse(raw):[] }catch(e){return[]} }
+    function saveCart(c){ try{ localStorage.setItem('sp_cart', JSON.stringify(c)); }catch(e){} }
+    function saveOrder(order){ try{ const raw = localStorage.getItem('sp_orders') || '[]'; const arr = JSON.parse(raw); arr.push(order); localStorage.setItem('sp_orders', JSON.stringify(arr)); }catch(e){console.error(e);} }
+
+    // currency formatter
+    function fmt(v){ return new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(v); }
+
+    // render order summary using image keys used in inventory/cart (img, image, imageUrl, src)
+    function renderSummary(){
+      const cart = loadCart();
+      const container = document.getElementById('summaryList');
+      container.innerHTML = '';
+
+      // create wrapper list for scroll behavior
+      const list = document.createElement('div');
+      list.className = 'summary-list';
+      container.appendChild(list);
+
+      if(!cart.length){
+        list.innerHTML = '<div class="muted">Your cart is empty.</div>';
+        document.getElementById('sumSubtotal').textContent = fmt(0);
+        document.getElementById('sumTax').textContent = fmt(0);
+        document.getElementById('sumTotal').textContent = fmt(0);
+        return;
+      }
+
+      cart.forEach(p=>{
+        const row = document.createElement('div'); row.className = 'summary-row';
+
+        // thumbnail
+        const thumb = document.createElement('div'); thumb.className = 'thumb';
+        const img = document.createElement('img');
+        img.alt = p.name || 'product';
+        img.loading = 'lazy';
+        // prefer typical keys set by your inventory: img, image, imageUrl, src
+        img.src = p.img || p.image || p.imageUrl || p.src || SVG_PLACEHOLDER;
+        img.onerror = function(){ if(!this._errored){ this._errored = true; this.src = SVG_PLACEHOLDER; }};
+        thumb.appendChild(img);
+
+        // info
+        const info = document.createElement('div'); info.className = 'item-info';
+        const nameEl = document.createElement('div'); nameEl.style.fontWeight = '600'; nameEl.textContent = p.name || 'Untitled';
+        info.appendChild(nameEl);
+        if(p.desc){
+          const descEl = document.createElement('div'); descEl.className = 'muted'; descEl.style.fontSize = '.9rem'; descEl.textContent = p.desc;
+          info.appendChild(descEl);
+        } else {
+          const qtyEl = document.createElement('div'); qtyEl.className = 'muted'; qtyEl.style.fontSize = '.9rem'; qtyEl.textContent = 'Qty: ' + (p.qty || 1);
+          info.appendChild(qtyEl);
+        }
+
+        // price column
+        const price = document.createElement('div'); price.className = 'item-price';
+        price.textContent = fmt((p.price||0) * (p.qty||1));
+
+        row.appendChild(thumb); row.appendChild(info); row.appendChild(price);
+        list.appendChild(row);
+      });
+
+      // totals
+      const subtotal = cart.reduce((s,p)=> s + (p.price||0) * (p.qty||1), 0);
+      const tax = +(subtotal * 0.05);
+      const total = subtotal + tax;
+      document.getElementById('sumSubtotal').textContent = fmt(subtotal);
+      document.getElementById('sumTax').textContent = fmt(tax);
+      document.getElementById('sumTotal').textContent = fmt(total);
+    }
+
+    // card and expiry formatting helpers
+    (function wireInputs(){
+      const cardInput = document.getElementById('cardNumber');
+      if(cardInput){ cardInput.addEventListener('input', (e)=>{ const v = e.target.value.replace(/\D/g,'').slice(0,16); e.target.value = v.replace(/(.{4})/g,'$1 ').trim(); }); }
+      const expiry = document.getElementById('expiry');
+      if(expiry){ expiry.addEventListener('input', (e)=>{ let v = e.target.value.replace(/\D/g,'').slice(0,4); if(v.length>2) v = v.slice(0,2) + '/' + v.slice(2); e.target.value = v; }); }
+    })();
+
+    // initial render
+    renderSummary();
+
+    // submit handler (validation + fake payment)
+    document.getElementById('checkoutForm').addEventListener('submit', function(ev){
+      ev.preventDefault();
+      const errEl = document.getElementById('errorMsg');
+      const msgEl = document.getElementById('checkoutMsg');
+      errEl.style.display='none'; errEl.textContent=''; msgEl.textContent='';
+
+      const fullName = document.getElementById('fullName').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const card = document.getElementById('cardNumber').value.replace(/\s+/g,'');
+      const exp = document.getElementById('expiry').value.trim();
+      const cvc = document.getElementById('cvc').value.trim();
+
+      if(!fullName){
+        errEl.style.display='block'; errEl.textContent = 'Full name is required'; return;
+      }
+      if(!address){
+        errEl.style.display='block'; errEl.textContent = 'Address is required'; return;
+      }
+      if(card.length < 12){
+        errEl.style.display='block'; errEl.textContent = 'Card number looks too short'; return;
+      }
+      if(exp.length !== 5 || cvc.length < 3){
+        errEl.style.display='block'; errEl.textContent = 'Expiry or CVC appears invalid'; return;
+      }
+
+      msgEl.textContent = 'Processing payment...';
+      setTimeout(()=>{
+        const cart = loadCart();
+        if(!cart.length){ errEl.style.display='block'; errEl.textContent='Cart is empty.'; msgEl.textContent=''; return; }
+
+        const subtotal = cart.reduce((s,p)=> s + (p.price||0)*(p.qty||1), 0);
+        const tax = +(subtotal * 0.05);
+        const total = subtotal + tax;
+
+        const order = {
+          id: 'ORD-' + Date.now().toString(36).toUpperCase(),
+          createdAt: new Date().toISOString(),
+          name: fullName,
+          address,
+          items: cart,
+          subtotal, tax, total
+        };
+
+        saveOrder(order);
+        // clear cart and redirect
+        localStorage.removeItem('sp_cart');
+        window.location.href = 'order.html?orderId=' + encodeURIComponent(order.id);
+      }, 900);
+    });
+  </script>
+</body>
+</html>

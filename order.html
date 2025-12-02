@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Order Placed — Isha Automation</title><link rel="stylesheet" href="styles.css" /></head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="logo-min"><img src="images/isha-logo.jpeg" alt="logo" style="height:48px;border-radius:6px"></div>
+        <div class="brand-text">Isha Automation</div>
+      </div>
+      <div class="header-actions">
+        <a href="inventory.html" class="btn ghost">Continue Shopping</a>
+        <button id="logoutBtn" class="btn ghost">Logout</button>
+      </div>
+    </div>
+  </header>
+  <main class="container">
+    <div id="orderPlaced" class="order-placed">
+    <div style="display:flex;justify-content:space-around;align-items:center;">
+  <div><h2>Thank you — your order is placed!</h2>
+ <p>Your order <strong id="orderId"></strong> has been received.</p>
+      <div id="orderDetails"></div>
+      <div style="margin-top:12px;"><a href="inventory.html" class="btn primary">Shop more</a></div>
+</div>
+ <div class="sparkle-container">
+  <img src="images/order-success.png"
+       alt="Order Success"
+       class="order-success-anim"
+       style="width:260px; border-radius:12px;">
+  
+  <!-- Sparkle Stars -->
+  <div class="sparkle-star"></div>
+  <div class="sparkle-star"></div>
+  <div class="sparkle-star"></div>
+  <div class="sparkle-star"></div>
+  <div class="sparkle-star"></div>
+</div>
+    </div>
+  </main>
+  <footer class="site-footer"><div class="container">© Isha Automation</div></footer>
+<script>
+  if (sessionStorage.getItem('isLoggedIn') !== 'true') window.location.href='index.html';
+  document.getElementById('logoutBtn').addEventListener('click', ()=>{ sessionStorage.clear(); window.location.href='index.html'; });
+  function getQuery(name){ const params = new URLSearchParams(window.location.search); return params.get(name); }
+  function loadOrders(){ const raw = localStorage.getItem('sp_orders'); return raw?JSON.parse(raw):[]; }
+  const oid = getQuery('orderId'); document.getElementById('orderId').textContent = oid || ''; const orders = loadOrders(); const o = orders.find(x=>x.id === oid); const details = document.getElementById('orderDetails'); if (o){ const d = document.createElement('div'); d.innerHTML = `<p><strong>Name:</strong> ${o.name}</p> <p><strong>Placed at:</strong> ${new Date(o.createdAt).toLocaleString()}</p> <h4>Items</h4>`; const ul = document.createElement('ul'); o.items.forEach(it=>{ const li = document.createElement('li'); li.textContent = `${it.name} × ${it.qty||1} — ₹${(it.price*(it.qty||1)).toFixed(2)}`; ul.appendChild(li); }); d.appendChild(ul); d.innerHTML += `<p><strong>Total:</strong> ₹${o.total.toFixed(2)}</p>`; details.appendChild(d); } else { details.textContent = 'Order not found in local storage.'; }
+</script>
+</body>
+</html>
